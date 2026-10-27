@@ -8,6 +8,8 @@ import("//build/config/ui.gni")
 
 source_set("vertical_tabs") {
   sources = [
+    "vertical_tab_profile_switcher.cc",
+    "vertical_tab_profile_switcher.h",
     "vertical_tab_strip_container_view.cc",
     "vertical_tab_strip_container_view.h",
     "vertical_tab_strip_region_view.cc",
@@ -28,18 +30,25 @@ source_set("vertical_tabs") {
     "//brave/components/constants",
     "//brave/components/vector_icons",
     "//chrome/app:command_ids",
+    "//chrome/browser:browser_process",
     "//chrome/browser/profiles",
+    "//chrome/browser/profiles:profile_manager",
+    "//chrome/browser/profiles:profile_util",
     "//chrome/browser/themes",
     "//chrome/browser/ui:ui_features",
     "//chrome/browser/ui/color:color_headers",
     "//chrome/browser/ui/color:mixers",
     "//chrome/browser/ui/exclusive_access",
     "//chrome/browser/ui/frame",
+    "//chrome/browser/ui/profiles",
     "//chrome/browser/ui/tabs",
     "//chrome/browser/ui/views:layout_provider",
     "//chrome/browser/ui/views/toolbar",
     "//chrome/common:constants",
     "//components/prefs",
+    "//ui/base",
+    "//ui/color",
+    "//ui/compositor",
     "//ui/views",
   ]
 }

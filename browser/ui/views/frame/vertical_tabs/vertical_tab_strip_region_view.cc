@@ -28,6 +28,7 @@
 #include "brave/browser/ui/views/frame/brave_browser_view.h"
 #include "brave/browser/ui/views/frame/brave_non_client_hit_test_helper.h"
 #include "brave/browser/ui/views/frame/tab_strip_placement_coordinator.h"
+#include "brave/browser/ui/views/frame/vertical_tabs/vertical_tab_profile_switcher.h"
 #include "brave/browser/ui/views/tabs/brave_new_tab_button.h"
 #include "brave/browser/ui/views/tabs/brave_tab_container.h"
 #include "brave/browser/ui/views/tabs/brave_tab_strip_layout_helper.h"
@@ -325,6 +326,9 @@ BraveVerticalTabStripRegionView::BraveVerticalTabStripRegionView(
                           base::Unretained(original_region_view_->tab_strip_)),
       GetShortcutTextForNewTabButton(browser_view), browser_));
 
+  profile_switcher_ = AddChildView(
+      std::make_unique<VerticalTabProfileSwitcher>(browser_));
+
   resize_area_ = AddChildView(std::make_unique<ResettableResizeArea>(this));
   SetBackground(views::CreateSolidBackground(kColorToolbar));
 
@@ -544,6 +548,7 @@ void BraveVerticalTabStripRegionView::SetState(State state) {
 
   last_state_ = std::exchange(state_, state);
   resize_area_->SetEnabled(state == State::kExpanded);
+  profile_switcher_->SetCollapsed(state == State::kCollapsed);
 
   if (!VerticalTabController::From(browser_)->ShouldShowBraveVerticalTabs()) {
     // This can happen when "float on mouse hover" is enabled and tab strip
@@ -698,10 +703,15 @@ void BraveVerticalTabStripRegionView::Layout(PassKey) {
   const auto contents_bounds = GetContentsBounds();
 
   constexpr int kNewTabButtonHeight = tabs::kVerticalTabHeight;
+  const int profile_switcher_height =
+      profile_switcher_->GetVisible()
+          ? VerticalTabProfileSwitcher::kButtonSize +
+                2 * tabs::kMarginForVerticalTabContainers
+          : 0;
   const int contents_view_max_height =
       contents_bounds.height() - tabs::kMarginForVerticalTabContainers -
       kNewTabButtonHeight - tabs::kMarginForVerticalTabContainers -
-      kSeparatorHeight;
+      kSeparatorHeight - profile_switcher_height;
   // Using tab_container_'s preferred height because tab_strip's preferred
   // height could be 0 in tests.
   const int contents_view_preferred_height =
@@ -724,6 +734,18 @@ void BraveVerticalTabStripRegionView::Layout(PassKey) {
       gfx::Size(separator_bounds.width(), kNewTabButtonHeight));
   new_tab_button_bounds.Offset(0, tabs::kMarginForVerticalTabContainers);
   new_tab_button_->SetBoundsRect(new_tab_button_bounds);
+
+  // Profile avatars sit at the very bottom, like in Dia.
+  if (profile_switcher_->GetVisible()) {
+    gfx::Rect profile_switcher_bounds(
+        contents_bounds.x(),
+        contents_bounds.bottom() - tabs::kMarginForVerticalTabContainers -
+            VerticalTabProfileSwitcher::kButtonSize,
+        contents_bounds.width(), VerticalTabProfileSwitcher::kButtonSize);
+    profile_switcher_bounds.Inset(
+        gfx::Insets::VH(0, tabs::kMarginForVerticalTabContainers));
+    profile_switcher_->SetBoundsRect(profile_switcher_bounds);
+  }
 
   // Put resize area, overlapped with contents.
   if (vertical_tab_on_right_.GetPrefName().empty()) {
@@ -972,14 +994,20 @@ void BraveVerticalTabStripRegionView::UpdateNewTabButtonVisibility() {
   original_ntb->SetVisible(!is_vertical_tabs);
   new_tab_button_->SetVisible(is_vertical_tabs);
   separator_->SetVisible(is_vertical_tabs);
+  profile_switcher_->SetVisible(is_vertical_tabs);
 }
 
 int BraveVerticalTabStripRegionView::GetTabStripViewportMaxHeight() const {
   // Don't depend on |contents_view_|'s current height. It could be bigger than
   // the actual viewport height.
+  const int profile_switcher_height =
+      profile_switcher_->GetVisible()
+          ? VerticalTabProfileSwitcher::kButtonSize +
+                2 * tabs::kMarginForVerticalTabContainers
+          : 0;
   return GetContentsBounds().height() -
          (separator_->height() + tabs::kMarginForVerticalTabContainers) -
-         new_tab_button_->height();
+         new_tab_button_->height() - profile_switcher_height;
 }
 
 void BraveVerticalTabStripRegionView::ResetExpandedWidth() {

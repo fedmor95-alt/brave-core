@@ -32,6 +32,7 @@ class MenuRunner;
 }  // namespace views
 
 class BraveNewTabButton;
+class VerticalTabProfileSwitcher;
 class BrowserView;
 class BrowserWindowInterface;
 class FullscreenController;
@@ -233,6 +234,9 @@ class BraveVerticalTabStripRegionView : public views::View,
 
   // New tab button created for vertical tabs
   raw_ptr<BraveNewTabButton> new_tab_button_ = nullptr;
+
+  // Profile avatars pinned to the bottom of the strip ("come Dia").
+  raw_ptr<VerticalTabProfileSwitcher> profile_switcher_ = nullptr;
 
   raw_ptr<views::View> resize_area_ = nullptr;
   std::optional<int> resize_offset_;

@@ -19,14 +19,16 @@
 namespace brave_tabs {
 
 void RegisterBraveProfilePrefs(PrefRegistrySimple* registry) {
+  // "Come Dia" defaults: vertical tabs, collapsed to favicons, expanding
+  // on hover, tree tabs on, no window title row, no toggle button.
   registry->RegisterIntegerPref(kTabHoverMode, TabHoverMode::CARD);
-  registry->RegisterBooleanPref(kVerticalTabsEnabled, false);
-  registry->RegisterBooleanPref(kVerticalTabsCollapsed, false);
+  registry->RegisterBooleanPref(kVerticalTabsEnabled, true);
+  registry->RegisterBooleanPref(kVerticalTabsCollapsed, true);
   registry->RegisterBooleanPref(kVerticalTabsExpandedStatePerWindow, false);
 #if BUILDFLAG(IS_WIN)
-  // On Windows, we show window title by default
+  // Upstream shows the window title on Windows; Dia doesn't.
   // https://github.com/brave/brave-browser/issues/30027
-  registry->RegisterBooleanPref(kVerticalTabsShowTitleOnWindow, true);
+  registry->RegisterBooleanPref(kVerticalTabsShowTitleOnWindow, false);
 #else
   registry->RegisterBooleanPref(kVerticalTabsShowTitleOnWindow, false);
 #endif
@@ -39,7 +41,7 @@ void RegisterBraveProfilePrefs(PrefRegistrySimple* registry) {
 #endif
 
   registry->RegisterBooleanPref(kVerticalTabsFloatingEnabled, true);
-  registry->RegisterBooleanPref(kVerticalTabsShowToggleButton, true);
+  registry->RegisterBooleanPref(kVerticalTabsShowToggleButton, false);
   registry->RegisterIntegerPref(kVerticalTabsExpandedWidth, 220);
   registry->RegisterBooleanPref(kVerticalTabsOnRight, false);
   registry->RegisterBooleanPref(kVerticalTabsShowScrollbar, false);
@@ -48,7 +50,7 @@ void RegisterBraveProfilePrefs(PrefRegistrySimple* registry) {
   registry->RegisterBooleanPref(kSharedPinnedTab, false);
 
   if (base::FeatureList::IsEnabled(tabs::kBraveTreeTab)) {
-    registry->RegisterBooleanPref(kTreeTabsEnabled, false);
+    registry->RegisterBooleanPref(kTreeTabsEnabled, true);
   }
 
   registry->RegisterBooleanPref(kAlwaysHideTabCloseButton, false);
@@ -56,7 +58,7 @@ void RegisterBraveProfilePrefs(PrefRegistrySimple* registry) {
   registry->RegisterIntegerPref(kTabMinWidthMode,
                                 static_cast<int>(TabMinWidthMode::kMinimum));
   registry->RegisterBooleanPref(kScrollableHorizontalTabStrip, false);
-  registry->RegisterBooleanPref(kAlwaysUseMiniAccentIcon, false);
+  registry->RegisterBooleanPref(kAlwaysUseMiniAccentIcon, true);
 }
 
 void MigrateBraveProfilePrefs(PrefService* prefs) {

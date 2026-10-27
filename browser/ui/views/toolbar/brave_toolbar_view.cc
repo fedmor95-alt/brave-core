@@ -309,6 +309,7 @@ void BraveToolbarView::Init() {
                                    self->UpdateVerticalTabTogglePlacement();
                                    self->UpdateComboButtonState();
                                    self->UpdateWorkspaceButtonVisibility();
+                                   self->Update(nullptr);
                                  },
                                  base::Unretained(this)));
     show_title_bar_on_vertical_tabs_.Init(
@@ -550,8 +551,15 @@ void BraveToolbarView::Update(content::WebContents* tab) {
       static_cast<AvatarToolbarButton*>(GetAvatarToolbarButtonInterface());
   if (avatar_button) {
     auto* profile = browser_->GetProfile();
+    // "Come Dia": with vertical tabs the profile row lives at the bottom of
+    // the sidebar, so the toolbar avatar is only kept for private / tor /
+    // guest windows, as an indicator.
+    const bool profiles_in_sidebar =
+        SupportsBraveVerticalTabs(browser_) &&
+        VerticalTabController::From(browser_)->ShouldShowBraveVerticalTabs();
     const bool should_show_profile =
-        !IsAvatarButtonHideable(profile) || HasMultipleUserProfiles();
+        !IsAvatarButtonHideable(profile) ||
+        (HasMultipleUserProfiles() && !profiles_in_sidebar);
     avatar_button->SetVisible(should_show_profile);
   }
 }
